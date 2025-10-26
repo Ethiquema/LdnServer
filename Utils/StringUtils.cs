@@ -70,24 +70,15 @@ namespace LanPlayServer.Utils
             return Encoding.UTF8.GetString(ms.ToArray());
         }
 
-        static string[] filterSlurs =
+        static readonly string[] FilterSlurs =
         [
             "\u004E\u0049\u0047\u0047\u0041",
             "\u004E\u0049\u0047\u0047\u0045\u0052",
             "\u0046\u0041\u0047\u0047\u004F\u0054"
         ];
 
-        public static bool ContainsSlur(this string input)
-        {
-            foreach (var word in filterSlurs)
-            {
-                if (input.ToUpper().Contains(word))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        public static bool ContainsSlur(this string input) 
+            => FilterSlurs.Any(word => input.Contains(word, StringComparison.OrdinalIgnoreCase));
 
         public static string CleanInput(this string input, int maxLength = -1, string extraAllowedChars = "")
         {
@@ -106,9 +97,9 @@ namespace LanPlayServer.Utils
             try {
                 result = Regex.Replace(result, $@"[^\w-_{extraAllowedChars}]", "",
                     RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-                foreach (var word in filterSlurs)
+                foreach (var word in FilterSlurs)
                 {
-                    if (result.ToUpper().Contains(word))
+                    if (result.Contains(word, StringComparison.CurrentCultureIgnoreCase))
                     {
                         return "***";
                     }

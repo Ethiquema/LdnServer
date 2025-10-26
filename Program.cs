@@ -48,7 +48,7 @@ namespace LanPlayServer
 
             _ldnServer = new(Host, Port);
 
-            var bannedIPs = IPBan.GetBannedIPs();
+            var bannedIPs = BanList.GetBannedIPs();
 
             Console.WriteLine($"Loaded {bannedIPs.Count} banned IPs");
 
