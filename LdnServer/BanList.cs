@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace LanPlayServer
 {
@@ -15,21 +16,24 @@ namespace LanPlayServer
         private static readonly string BanFilePath =
             Environment.GetEnvironmentVariable("IP_BAN_FILE_PATH") ?? "bannedips.txt";
 
-        private static readonly FileSystemWatcher BanFileWatcher = new(BanFilePath);
+        private static readonly FileSystemWatcher BanFileWatcher;
 
         private static bool IsSelfCausedWrite;
 
         static BanList()
         {
+            BanFileWatcher = new(Path.GetDirectoryName(Path.GetFullPath(BanFilePath)));
+            BanFileWatcher.Filter = Path.GetFileName(BanFilePath);
             BanFileWatcher.NotifyFilter = NotifyFilters.LastWrite;
             BanFileWatcher.Changed += BanFileWatcher_OnChanged;
+            BanFileWatcher.EnableRaisingEvents = true;
 
             BannedIPs = [];
             if (!File.Exists(BanFilePath))
             {
                 File.Create(BanFilePath).Close();
             }
-            else 
+            else
                 Load();
         }
 
@@ -65,7 +69,7 @@ namespace LanPlayServer
                         BannedIPs.Add(ipString);
                         IsSelfCausedWrite = true;
                         File.AppendAllText(BanFilePath, ipString + Environment.NewLine);
-                        IsSelfCausedWrite = false;
+                        Task.Delay(100).ContinueWith(t => IsSelfCausedWrite = false);
                     }
                 }
             }
