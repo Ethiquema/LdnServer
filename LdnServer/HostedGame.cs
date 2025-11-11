@@ -1,7 +1,6 @@
 ﻿using LanPlayServer.Network;
 using LanPlayServer.Network.Types;
 using LanPlayServer.Stats;
-using LanPlayServer.Stats.Types;
 using LanPlayServer.Utils;
 using Ryujinx.HLE.HOS.Services.Ldn.Types;
 using System;
@@ -11,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace LanPlayServer
@@ -72,14 +70,7 @@ namespace LanPlayServer
         public LdnSession Owner { get; private set; }
         public string OwnerId => Owner.StringId;
 
-        private string _passphrase;
-        public string Passphrase
-        {
-            get
-            {
-                return _passphrase;
-            }
-        }
+        public string Passphrase { get; private set; }
 
         private string _gameVersion;
         private bool _isP2P;
@@ -127,7 +118,7 @@ namespace LanPlayServer
             CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             _lock = new object();
-            _players = new List<LdnSession>();
+            _players = [];
             _dhcp = new VirtualDhcp(NetworkBaseAddress, NetworkSubnetMask, dhcpConfig);
 
             UpdateNetworkInfo(info);
@@ -166,7 +157,7 @@ namespace LanPlayServer
                 try
                 {
                     Owner = session;
-                    _passphrase = session.Passphrase;
+                    Passphrase = session.Passphrase;
 
                     GameVersion = Encoding.UTF8.GetString(request.GameVersion.AsSpan().ToArray(), 0, request.GameVersion.Length).Trim('\0');
 
