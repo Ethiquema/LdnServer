@@ -1,15 +1,13 @@
-version: '3'
-
 services:
   redis:
     image: redis/redis-stack-server
-    restart: always
+    #restart: always
     networks:
       - main
 
   ldn-server:
-    build: ./
-    restart: always
+    image: ghcr.io/ryubing/ldnserver:latest
+    #restart: always
     environment:
       LDN_HOST: 0.0.0.0
       LDN_PORT: 30456
@@ -17,16 +15,18 @@ services:
       LDN_REDIS_PORT: 6379
       IP_BAN_FILE_PATH: /data/ryuldn/bannedips.txt
     volumes:
-      - /data/ryuldn:/data/ryuldn
+      - ./data/ryuldn:/data/ryuldn
     ports:
       - "30456:30456"
+    depends_on:
+      - redis
     networks:
       - main
 
   ryujinx-ldn-website:
-    # NOTE: Make sure the website repo is cloned to this location and up to date
     hostname: ryujinx-ldn-website
-    build: ../ryujinx-ldn-website/
+    image: ghcr.io/ryubing/ldnwebsite:latest
+    #restart: always
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -34,10 +34,11 @@ services:
       REDIS_URL: "redis://redis:6379"
     ports:
       - "8080:8080"
+    depends_on:
+      - redis
     networks:
-      - main 
+      - main
 
 networks:
   main:
     name: main
-    external: true

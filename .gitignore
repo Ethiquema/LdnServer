@@ -164,3 +164,6 @@ launchSettings.json
 
 # NetCore Publishing Profiles
 PublishProfiles/
+
+# Runtime
+data/
