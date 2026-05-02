@@ -32,12 +32,13 @@ ENV \
     LANG=en_US.UTF-8 \
     IP_BAN_FILE_PATH=/data/ryuldn/bannedips.txt
 
-RUN apk add --no-cache icu-libs \
+RUN apk add --no-cache icu-libs su-exec \
     && addgroup -S appgroup && adduser -S appuser -G appgroup \
     && mkdir -p /data/ryuldn && touch /data/ryuldn/bannedips.txt \
     && chown -R appuser:appgroup /app /data \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
-USER appuser
 
+# The container starts as root so the entrypoint can chown the (possibly
+# bind-mounted) data directory; it then drops to appuser via su-exec.
 EXPOSE 30456
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
